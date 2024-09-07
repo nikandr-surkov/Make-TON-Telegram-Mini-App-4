@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Make TON Telegram Mini App 4: Connect TON Wallet, Display TON Wallet Address
+
+Welcome to the fourth guide in the **Make TON Telegram Mini App** series! This project demonstrates how to implement TON wallet connection functionality and display the connected wallet address in a Telegram Mini App using Next.js 14, TypeScript, and the @tonconnect/ui-react library.
+
+## Project Overview
+
+This Telegram Mini App showcases:
+- Setting up a Next.js 14 project with TypeScript
+- Implementing TON wallet connection using @tonconnect/ui-react
+- Managing wallet connection state
+- Displaying the connected TON wallet address
+- Formatting and truncating the wallet address for better user experience
+- Basic TypeScript usage for type safety
+
+## Prerequisites
+
+- Node.js (version 14 or higher)
+- npm (comes with Node.js)
+- A Telegram account
+- A Telegram Bot Token
+- GitHub account
+- Vercel account
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+   ```
+   git clone https://github.com/your-username/Make-TON-Telegram-Mini-App-4.git
+   cd Make-TON-Telegram-Mini-App-4
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment and Usage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+As this is a Telegram Mini App, you can't see the result directly in development mode. Follow these steps to deploy and use the app:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push your code to a GitHub repository.
+2. Sign up for a Vercel account if you haven't already.
+3. Connect your GitHub repository to Vercel and deploy the app.
+4. Once deployed, Vercel will provide you with a URL for your app.
+5. Use this URL to set up your Telegram Mini App:
+   - Go to [@BotFather](https://t.me/BotFather) on Telegram
+   - Send the command `/newapp` or choose to edit an existing bot
+   - Follow the prompts to set up your Mini App, using the Vercel URL as the Web App URL
+6. Once set up, you can access your Mini App through Telegram on mobile devices or in the Web version of Telegram.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+- `app/layout.tsx`: Root layout component with TonConnectUIProvider
+- `app/page.tsx`: Main page component with wallet connection logic and address display
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- TON wallet connection and disconnection
+- Display of connected wallet address with proper formatting
+- Loading state management
+- Responsive design with Tailwind CSS
 
-## Deploy on Vercel
+## Note on TonConnect Manifest
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This demo uses a TonConnect manifest hosted on IPFS. In a production application, you should host your own manifest file and update the URL in the `TonConnectUIProvider`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## YouTube Channel
+
+For video tutorials and more in-depth explanations, check out my YouTube channel:
+[Nikandr Surkov](https://www.youtube.com/@NikandrSurkov)
+
+## Next Steps
+
+Stay tuned for the next guide in the **Make TON Telegram Mini App** series, where we'll explore more advanced features and deeper TON blockchain integration!
