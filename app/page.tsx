@@ -1,95 +1,34 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { useTonConnectUI } from '@tonconnect/ui-react';
-import { Address } from "@ton/core";
+import { useState } from 'react';
+import styles from './page.module.css';
 
-export default function Home() {
-  const [tonConnectUI] = useTonConnectUI();
-  const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const handleWalletConnection = useCallback((address: string) => {
-    setTonWalletAddress(address);
-    console.log("Wallet connected successfully!");
-    setIsLoading(false);
-  }, []);
-
-  const handleWalletDisconnection = useCallback(() => {
-    setTonWalletAddress(null);
-    console.log("Wallet disconnected successfully!");
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    const checkWalletConnection = async () => {
-      if (tonConnectUI.account?.address) {
-        handleWalletConnection(tonConnectUI.account?.address);
-      } else {
-        handleWalletDisconnection();
-      }
-    };
-
-    checkWalletConnection();
-
-    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-      if (wallet) {
-        handleWalletConnection(wallet.account.address);
-      } else {
-        handleWalletDisconnection();
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [tonConnectUI, handleWalletConnection, handleWalletDisconnection]);
-
-  const handleWalletAction = async () => {
-    if (tonConnectUI.connected) {
-      setIsLoading(true);
-      await tonConnectUI.disconnect();
-    } else {
-      await tonConnectUI.openModal();
-    }
-  };
-
-  const formatAddress = (address: string) => {
-    const tempAddress = Address.parse(address).toString();
-    return `${tempAddress.slice(0, 4)}...${tempAddress.slice(-4)}`;
-  };
-
-  if (isLoading) {
-    return (
-      <main className="flex min-h-screen flex-col items-center justify-center">
-        <div className="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded">
-          Loading...
-        </div>
-      </main>
-    );
-  }
-
+export default function GameUI() {
+  const [health, setHealth] = useState(100);
+  const [score, setScore] = useState(0);
+  
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold mb-8">TON Connect Demo</h1>
-      {tonWalletAddress ? (
-        <div className="flex flex-col items-center">
-          <p className="mb-4">Connected: {formatAddress(tonWalletAddress)}</p>
-          <button
-            onClick={handleWalletAction}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Disconnect Wallet
-          </button>
+    <main className={styles.gameContainer}>
+      {/* Status Bar */}
+      <div className={styles.statusBar}>
+        <div className={styles.healthBar}>
+          <div className={styles.healthFill} style={{ width: `${health}%` }}></div>
+          <span>HP: {health}</span>
         </div>
-      ) : (
-        <button
-          onClick={handleWalletAction}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Connect TON Wallet
-        </button>
-      )}
+        <div className={styles.score}>Score: {score}</div>
+      </div>
+
+      {/* Game Area */}
+      <div className={styles.gameArea}>
+        {/* Game content will go here */}
+      </div>
+
+      {/* Controls */}
+      <div className={styles.controls}>
+        <button className={styles.actionButton}>Attack</button>
+        <button className={styles.actionButton}>Defend</button>
+        <button className={styles.actionButton}>Special</button>
+      </div>
     </main>
   );
 }
