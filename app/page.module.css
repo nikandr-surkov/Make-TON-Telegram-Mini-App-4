@@ -1,5 +1,91 @@
 .gameContainer {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  gap: 2rem;
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.healthBar {
+  position: relative;
+  width: 200px;
+  height: 20px;
+  background: rgba(255, 0, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.healthFill {
+  height: 100%;
+  background: #44ff44;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.score {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.gameArea {
+  min-height: 200px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.messageBox {
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.actionButton {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionButton:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.actionButton:disabled {
+  background: #4b5563;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.attacking {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 } 
