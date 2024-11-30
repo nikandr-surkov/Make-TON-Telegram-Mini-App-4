@@ -1,97 +1,95 @@
 'use client'
 
-import { useState, useEffect } from 'react';
-import styles from './page.module.css';
+import { useState, useEffect, useCallback } from 'react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
+import { Address } from "@ton/core";
 
-export default function GameUI() {
-  const [health, setHealth] = useState(100);
-  const [score, setScore] = useState(0);
-  const [isAttacking, setIsAttacking] = useState(false);
-  const [message, setMessage] = useState('');
-  
-  // Game actions
-  const handleAttack = () => {
-    setIsAttacking(true);
-    const damage = Math.floor(Math.random() * 20) + 10;
-    const points = Math.floor(Math.random() * 50) + 10;
-    
-    setScore(prev => prev + points);
-    setMessage(`Hit! +${points} points`);
-    
-    // Enemy counter-attack
-    setTimeout(() => {
-      const enemyDamage = Math.floor(Math.random() * 15) + 5;
-      setHealth(prev => Math.max(0, prev - enemyDamage));
-      setIsAttacking(false);
-      setMessage(`Enemy hits back for ${enemyDamage} damage!`);
-    }, 1000);
-  };
+export default function Home() {
+  const [tonConnectUI] = useTonConnectUI();
+  const [tonWalletAddress, setTonWalletAddress] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleDefend = () => {
-    setHealth(prev => Math.min(100, prev + 20));
-    setMessage('Defended! Recovered 20 HP');
-  };
+  const handleWalletConnection = useCallback((address: string) => {
+    setTonWalletAddress(address);
+    console.log("Wallet connected successfully!");
+    setIsLoading(false);
+  }, []);
 
-  const handleSpecial = () => {
-    if (score >= 100) {
-      setScore(prev => prev - 100);
-      setHealth(100);
-      setMessage('Special move! Full health restored!');
-    } else {
-      setMessage('Need 100 points for special move!');
-    }
-  };
+  const handleWalletDisconnection = useCallback(() => {
+    setTonWalletAddress(null);
+    console.log("Wallet disconnected successfully!");
+    setIsLoading(false);
+  }, []);
 
-  // Game over check
   useEffect(() => {
-    if (health <= 0) {
-      setMessage('Game Over! Refresh to play again.');
+    const checkWalletConnection = async () => {
+      if (tonConnectUI.account?.address) {
+        handleWalletConnection(tonConnectUI.account?.address);
+      } else {
+        handleWalletDisconnection();
+      }
+    };
+
+    checkWalletConnection();
+
+    const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+      if (wallet) {
+        handleWalletConnection(wallet.account.address);
+      } else {
+        handleWalletDisconnection();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [tonConnectUI, handleWalletConnection, handleWalletDisconnection]);
+
+  const handleWalletAction = async () => {
+    if (tonConnectUI.connected) {
+      setIsLoading(true);
+      await tonConnectUI.disconnect();
+    } else {
+      await tonConnectUI.openModal();
     }
-  }, [health]);
+  };
+
+  const formatAddress = (address: string) => {
+    const tempAddress = Address.parse(address).toString();
+    return `${tempAddress.slice(0, 4)}...${tempAddress.slice(-4)}`;
+  };
+
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center">
+        <div className="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded">
+          Loading...
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className={styles.gameContainer}>
-      {/* Status Bar */}
-      <div className={styles.statusBar}>
-        <div className={styles.healthBar}>
-          <div 
-            className={styles.healthFill} 
-            style={{ width: `${health}%`, backgroundColor: health < 30 ? '#ff4444' : '#44ff44' }}
-          ></div>
-          <span>HP: {health}</span>
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <h1 className="text-4xl font-bold mb-8">TON Connect Demo</h1>
+      {tonWalletAddress ? (
+        <div className="flex flex-col items-center">
+          <p className="mb-4">Connected: {formatAddress(tonWalletAddress)}</p>
+          <button
+            onClick={handleWalletAction}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Disconnect Wallet
+          </button>
         </div>
-        <div className={styles.score}>Score: {score}</div>
-      </div>
-
-      {/* Game Area */}
-      <div className={styles.gameArea}>
-        <div className={styles.messageBox}>{message}</div>
-      </div>
-
-      {/* Controls */}
-      <div className={styles.controls}>
-        <button 
-          className={`${styles.actionButton} ${isAttacking ? styles.attacking : ''}`}
-          onClick={handleAttack}
-          disabled={health <= 0 || isAttacking}
+      ) : (
+        <button
+          onClick={handleWalletAction}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          Attack
+          Connect TON Wallet
         </button>
-        <button 
-          className={styles.actionButton}
-          onClick={handleDefend}
-          disabled={health <= 0 || health === 100}
-        >
-          Defend
-        </button>
-        <button 
-          className={styles.actionButton}
-          onClick={handleSpecial}
-          disabled={health <= 0 || score < 100}
-        >
-          Special
-        </button>
-      </div>
+      )}
     </main>
   );
 }
