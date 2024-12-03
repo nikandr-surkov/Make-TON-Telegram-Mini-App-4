@@ -3,9 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Card Skimmer Crafting with Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+            margin: 20px;
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        canvas {
+            border: 2px dashed #007bff;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .component {
+            position: absolute;
+            cursor: grab;
+        }
+    </style>
 </head>
 <body>
-    <h1>Hello World</h1>
+    <h1>Craft Your Card Skimmer</h1>
+    <div class="container">
+        <div id="components">
+            <div class="component" id="card-reader" style="left: 10px; top: 10px;">
+                <img src="card-reader.png" alt="Card Reader" width="100">
+                <p>Card Reader</p>
+            </div>
+            <div class="component" id="microcontroller" style="left: 120px; top: 10px;">
+                <img src="microcontroller.png" alt="Microcontroller" width="100">
+                <p>Microcontroller</p>
+            </div>
+            <div class="component" id="battery" style="left: 230px; top: 10px;">
+                <img src="battery.png" alt="Battery" width="100">
+                <p>Battery</p>
+            </div>
+            <div class="component" id="wires" style="left: 340px; top: 10px;">
+                <img src="wires.png" alt="Wires" width="100">
+                <p>Wires</p>
+            </div>
+            <div class="component" id="pcb" style="left: 450px; top: 10px;">
+                <img src="pcb.png" alt="PCB" width="100">
+                <p>PCB</p>
+            </div>
+            <div class="component" id="enclosure" style="left: 560px; top: 10px;">
+                <img src="enclosure.png" alt="Enclosure" width="100">
+                <p>Enclosure</p>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas" width="600" height="400"></canvas>
+        </div>
+    </div>
+    <button id="assemble-btn" disabled>Assemble Skimmer</button>
+    <div id="message" class="message"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const components = document.querySelectorAll('.component');
+        const assembleBtn = document.getElementById('assemble-btn');
+        const message = document.getElementById('message');
+
+        let draggedElement = null;
+        let offsetX, offsetY;
+
+        // Draw components on canvas
+        function drawComponent(imgSrc, x, y) {
+            const img = new Image();
+            img.src = imgSrc;
+            img.onload = () => {
+                ctx.drawImage(img, x, y, 100, 100);
+            };
+        }
+
+        function initializeCanvas() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw components
+            components.forEach(component => {
+                const imgSrc = component.querySelector('img').src;
+                const rect = component.getBoundingClientRect();
+                drawComponent(imgSrc, rect.left - canvas.offsetLeft, rect.top - canvas.offsetTop);
+            });
+        }
+
+        // Initialize canvas with components
+        initializeCanvas();
+
+        canvas.addEventListener('mousedown', (e) => {
+            const { offsetX: mouseX, offsetY: mouseY } = e;
+            const rects = components.map(c => c.getBoundingClientRect());
+
+            rects.forEach((rect, index) => {
+                if (mouseX > rect.left - canvas.offsetLeft && mouseX < rect.right - canvas.offsetLeft &&
+                    mouseY > rect.top - canvas.offsetTop && mouseY < rect.bottom - canvas.offsetTop) {
+                    draggedElement = components[index];
+                    offsetX = mouseX - (rect.left - canvas.offsetLeft);
+                    offsetY = mouseY - (rect.top - canvas.offsetTop);
+                    draggedElement.style.zIndex = 1000; // Bring to front
+                }
+            });
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (draggedElement) {
+                const { offsetX: mouseX, offsetY: mouseY } = e;
+                draggedElement.style.left = `${mouseX - offsetX}px`;
+                draggedElement.style.top = `${mouseY - offsetY}px`;
+                initializeCanvas();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (draggedElement) {
+                draggedElement.style.zIndex = '';
+                draggedElement = null;
+                checkCompletion();
+            }
+        });
+
+        function checkCompletion() {
+            const componentsInCanvas = Array.from(components).filter(component => {
+                const rect = component.getBoundingClientRect();
+                return (
+                    rect.left >= canvas.getBoundingClientRect().left &&
+                    rect.top >= canvas.getBoundingClientRect().top &&
+                    rect.right <= canvas.getBoundingClientRect().right &&
+                    rect.bottom <= canvas.getBoundingClientRect().bottom
+                );
+            });
+
+            if (componentsInCanvas.length >= 5) {
+                assembleBtn.disabled = false;
+            } else {
+                assembleBtn.disabled = true;
+            }
+        }
+
+        assembleBtn.addEventListener('click', () => {
+            if (assembleBtn.disabled) {
+                message.textContent = 'Please add all required components to assemble the skimmer.';
+                message.style.color = '#d9534f';
+            } else {
+                message.textContent = 'Card Skimmer Assembled!';
+                message.style.color = '#5bc0de';
+            }
+        });
+    </script>
 </body>
 </html>
