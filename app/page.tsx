@@ -70,7 +70,15 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
+    <main className="flex min-h-screen flex-col items-center justify-center relative">
+      {tonWalletAddress && (
+        <div className="absolute top-2 left-2 text-xs text-gray-500 font-mono">
+          <div>Address: {formatAddress(tonWalletAddress)}</div>
+          <div>Network: TON Mainnet</div>
+          <div>Status: Connected</div>
+          <div>Last Updated: {new Date().toLocaleTimeString()}</div>
+        </div>
+      )}
       <h1 className="text-4xl font-bold mb-8">TON Connect Demo</h1>
       {tonWalletAddress ? (
         <div className="flex flex-col items-center">
